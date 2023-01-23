@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountCodesController;
 use App\Http\Controllers\ApprovedPaymentController;
 use App\Http\Controllers\AuditVoucherController;
 use App\Http\Controllers\BankController;
@@ -88,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/payment', PaymentController::class);
         Route::get('/coReports', [CashOfficeController::class, 'selectReports']);
         Route::get('/ledger', [LedgerController::class, 'ledger']);
+        Route::get('/generalLedger', [LedgerController::class, 'generalLedger']);
         Route::post('/generalLedger', [LedgerController::class, 'generalLedger']);
         Route::post('/sjv', [SJVController::class, 'process']);
         Route::post('/paymentReports', [PaymentReport::class, 'generate']);
@@ -109,6 +111,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('')->group(function () {
         Route::resource('payVoucher', PaymentController::class);
         Route::resource('fundingAccount', FundingAccountsController::class);
+        Route::resource('/accountCodes', AccountCodesController::class);
     });
 
     Route::prefix('')->group(function () {

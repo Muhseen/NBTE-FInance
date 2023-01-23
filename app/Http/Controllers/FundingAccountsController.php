@@ -15,7 +15,7 @@ class FundingAccountsController extends Controller
      */
     public function index()
     {
-        //
+        return  view('fundingAccounts.index')->withFa(FundingAccounts::all());
     }
 
     /**
@@ -25,7 +25,7 @@ class FundingAccountsController extends Controller
      */
     public function create()
     {
-        //
+        return view('fundingAccounts.create');
     }
 
     /**
@@ -36,7 +36,9 @@ class FundingAccountsController extends Controller
      */
     public function store(StoreFundingAccountsRequest $request)
     {
-        //
+        FundingAccounts::create($request->validated());
+        session()->flash('message', 'Successfully Added Account');
+        return back();;
     }
 
     /**

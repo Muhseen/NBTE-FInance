@@ -41,7 +41,7 @@
 				@endforeach
 				<tr>
 					<td colspan="5" class="text-right text-bold">Total</td>
-					<td class="text-bold">{{ Str::currency($i->sum('amount')) }}</td>
+					<td class="text-bold">{{ Str::currency($income?->sum('amount') ?? 0) }}</td>
 				</tr>
 			</table>
 		</div>

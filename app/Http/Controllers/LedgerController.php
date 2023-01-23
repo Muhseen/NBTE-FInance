@@ -52,20 +52,52 @@ class LedgerController extends Controller
 
 
         $html = "";
-        $request->validate(['start_date' => 'required', 'end_date' => 'required']);
-        $vouchers = Transaction::whereBetween('txn_date', [$request->start_date, $request->end_date])->get();
+        //$request->validate(['start_date' => 'required', 'end_date' => 'required']);
+        $vouchers = Transaction::orderBy('year', 'ASC')->get(); //whereBetween('txn_date', [$request->start_date, $request->end_date])->get();
         //  dd($vouchers);
         $vouchersByAccountCode = $vouchers->groupBy('account_code_db');
         //dd($vouchersByAccountCode);
         $headerColspan = 7;
         $monthsArray = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        foreach ($vouchersByAccountCode as $codes) {
-            //dd($codes);
+        $query = Transaction::all(); //whereBetween('txn_date', [$start_date, $end_date])->get();
+        $codes =        array_merge($query->pluck('account_code_cr')->toArray(), $query->pluck('account_code_db')->toArray());
+        $codes = array_unique($codes);
+        sort($codes);
+        ///dd($codes);
+        foreach ($codes as $code) {
 
-            $html .= "<table class='table table-bordered table-striped text-center'>";
+            $nCode = NCOA::where('EconSegCode', $code)->first();
+            $html .= "<div class='card p-3'>";
+            $html .= "<table class='table table-bordered table-striped text-center my-5'>";
             $html .= '<div class="row"><div class="col-1">';
             $html .= '<img src="/images/logo.png" alt="NBTE LOGO" width="60px" height="60px"></div>';
-            $html .= '<div class="col-10 text-center"><h2>National Board for Technical Education</h2> <h5>Ledger</h5> </div>';
+            $html .= '<div class="col-10 text-center"><h2>National Board for Technical Education</h2> <h5>Ledger for <br> ' . $nCode?->EconSegCode . " : " . $nCode?->LineItem . '</h5> </div>';
+            $html .= '<div class="col-1"><img src="/images/logo.png" alt="NBTE LOGO" width="60px" height="60px"></div></div>';
+            //$html .= "<tr colspan='" . $headerColspan . "'><th colspan='" . $headerColspan . "'>LEDGER ACCOUNT FOR " . $codes->first()->year . "</th></tr>";
+            //$html .= "<tr colspan='" . $headerColspan . "'><th colspan='" . $headerColspan . "'>ACCOUNT CODE :  " . $codes->first()->code . "    TITLE : " . $codes->first()->description . "</th></tr>";
+            $html .= "<tr><th>Month</th><th></th><th>Ref No/TPV No</th><th>Details</th><th>Debit</th><th>Credit</th></tr>";
+            $bal = 0;
+
+            $trans = Transaction::where('account_code_cr', $code)->orWhere('account_code_db', $code)->get();
+            $monthlyTrans = $trans->groupBy('month');
+            foreach ($monthlyTrans as $m) {
+                $sumCr = $m->where('account_code_cr', $code)->sum('amount_cr');
+                $sumDr = $m->where('account_code_db', $code)->sum('amount_db');
+                //dd($sumCr, $sumDr);
+                $bal += ($sumCr - $sumDr);
+                $html .= @"<tr><th>{$monthsArray[$m->first()->month - 1]}</th><th>{$m->first()->year}</th><th></th><th>{$nCode->LineItem} - {$m->first()->fundingAccount}</th><th>{$this->formatNumber($sumDr)}</th><th>{$this->formatNumber($sumCr)}</th></tr>";
+            }
+            $html .= "</table></div>";
+        }
+
+        return view('cashOffice.reports.generalLedger')->withTable($html);
+        foreach ($vouchersByAccountCode as $codes) {
+            /// dd($codes);
+
+            $html .= "<table class='table table-bordered table-striped text-center my-5'>";
+            $html .= '<div class="row"><div class="col-1">';
+            $html .= '<img src="/images/logo.png" alt="NBTE LOGO" width="60px" height="60px"></div>';
+            $html .= '<div class="col-10 text-center"><h2>National Board for Technical Education</h2> <h5>Ledger for </h5> </div>';
             $html .= '<div class="col-1"><img src="/images/logo.png" alt="NBTE LOGO" width="60px" height="60px"></div></div>';
             //$html .= "<tr colspan='" . $headerColspan . "'><th colspan='" . $headerColspan . "'>LEDGER ACCOUNT FOR " . $codes->first()->year . "</th></tr>";
             //$html .= "<tr colspan='" . $headerColspan . "'><th colspan='" . $headerColspan . "'>ACCOUNT CODE :  " . $codes->first()->code . "    TITLE : " . $codes->first()->description . "</th></tr>";

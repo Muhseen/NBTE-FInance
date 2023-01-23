@@ -13,7 +13,7 @@ class StoreFundingAccountsRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,9 @@ class StoreFundingAccountsRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'required|unique:funding_accounts,name',
+            'balance' => 'required|numeric|min:0',
+            'account_code' => 'required'
         ];
     }
 }

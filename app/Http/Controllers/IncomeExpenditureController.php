@@ -15,6 +15,7 @@ class IncomeExpenditureController extends Controller
 {
     public function report(Request $request)
     {
+
         $request->validate(['type' => 'required']);
         $income = null;
         $payments = null;
@@ -33,7 +34,6 @@ class IncomeExpenditureController extends Controller
             $income = Income::where('payer', 'like', '%' . $request->name . '%')->get();
             $headers = "Income Received in the name of  " . $request->name;
         }
-
         return view('income.reports')->withIncome($income)->withHeaders($headers);
     }
 

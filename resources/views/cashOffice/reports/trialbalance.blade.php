@@ -20,7 +20,19 @@
 				<p>Generated on {{ now()->toDateString() }}</p>
 			</div>
 
-			{!! $table !!}
+			<table class="table table-striped table-bordered table-active">
+				<tr>
+					<th>Account Code</th>
+					<th>Amount Dr</th>
+					<th>Amount Cr</th>
+				</tr>
+				{!! $tr !!}
+				<tr>
+					<th>Totals</th>
+					<th>{{ Str::currency($tots[0]) }}</th>
+					<th>{{ Str::currency($tots[1]) }}</th>
+				</tr>
+			</table>
 		</div>
 
 
